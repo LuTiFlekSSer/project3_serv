@@ -4,7 +4,6 @@
 
 int main() {
     system("cls");
-    printf("Yeba\n");
     printf("Server start up\n");
     WSADATA wsd;
     if (WSAStartup(MAKEWORD(1, 1), &wsd)) {
