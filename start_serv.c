@@ -4,8 +4,9 @@
 #include "winsock2.h"
 #include "structs.h"
 #include "database.h"
+#include "time.h"
 
-int offai = 0, user_num = 0, maxuser = 1, port;
+int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5;
 user_info *database;
 
 void *client_func(void *par) {
@@ -456,18 +457,32 @@ void *console_func(void *par) {
     while (1) {
         scanf("%s", com);
         if (strcmp(com, "exit") == 0) {
+            autosave = 0;
             offai = 1;
             int info = connect(client, (struct sockaddr *) &server, sizeof(server));
             closesocket(client);
             break;
-        } else
-            continue;
+        } else if (strcmp(com, "setsavetime") == 0) {
+            printf("Enter new save time:\n");
+            scanf("%d", &save_min);
+            printf("New save time: %dm.\n", save_min);
+        } else {
+            printf("Unknown command\n");
+        }
     }
     return (void *) 0;
 }
 
 void *save_func(void *par) {
-    //сначала подождать это бибу, потом уже офать серв с сохранением
+    time_t t = time(NULL);
+    while (autosave) {
+        if (time(NULL) - t >= 60 * save_min) {
+            printf("Autosave start\n");
+            base_save(&user_num, &database);
+            printf("Autosave end\n");
+            t = time(NULL);
+        }
+    }
     return (void *) 0;
 }
 
@@ -518,14 +533,19 @@ int createserv() {
     }
     listen(server, SOMAXCONN);
     //подрубить абобуса
-    pthread_t console_thread;
+    pthread_t console_thread, save_thread;
     pthread_create(&console_thread, NULL, &console_func, NULL);
     pthread_detach(console_thread);
+    pthread_create(&save_thread, NULL, &save_func, NULL);
+    pthread_detach(save_thread);
     int size;
     while (1) {
         if (offai) {
             //отправить всем сообщение + сохранить данные
             //адекватно офнуть сокеты
+            for (int i = 0; i < user_num; ++i)
+                if (database[i].isonline)
+                    closesocket(database[i].client);
             base_save(&user_num, &database);
             printf("The boss of this gym turned off the server\n");
             break;
