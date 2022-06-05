@@ -448,6 +448,7 @@ void *client_func(void *par) {
 }
 
 void *console_func(void *par) {
+    int check;
     SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     struct sockaddr_in server;
     server.sin_family = AF_INET;
@@ -466,6 +467,19 @@ void *console_func(void *par) {
             printf("Enter new save time:\n");
             scanf("%d", &save_min);
             printf("New save time: %dm.\n", save_min);
+        } else if (strcmp(com, "printcont") == 0) {
+            printf("Enter username:\n");
+            scanf("%s", com);
+            check = 0;
+            for (int i = 0; i < user_num; ++i)
+                if (strcmp(database[i].login, com) == 0) {
+                    check = 1;
+                    for (int j = 0; j < database[i].cont_num; ++j)
+                        printf("%s\n", database[i].cont_list[j]);
+                    break;
+                }
+            if (!check)
+                printf("User not found\n");
         } else {
             printf("Unknown command\n");
         }
