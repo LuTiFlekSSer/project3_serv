@@ -480,6 +480,46 @@ void *console_func(void *par) {
                 }
             if (!check)
                 printf("User not found\n");
+        } else if (strcmp(com, "printmes") == 0) {
+            printf("Enter username:\n");
+            scanf("%s", com);
+            check = 0;
+            int icheck = 0;
+            for (int i = 0; i < user_num; ++i) {
+                if (strcmp(database[i].login, com) == 0) {
+                    printf("Enter the name of the interlocutor\n");
+                    scanf("%s", com);
+                    for (int j = 0; j < database[i].mes_num; ++j) {
+                        if (strcmp(com, database[i].mes_base[j].cont) == 0) {
+                            for (int k = 0; k < database[i].mes_base[j].mes_num; ++k) {
+                                if (database[i].mes_base[j].suda_or_tuda[k] == 0)
+                                    printf("%s: %s\n", database[i].mes_base[j].cont, database[i].mes_base[j].mes[k]);
+                                else
+                                    printf("%s: %s\n", database[i].login, database[i].mes_base[j].mes[k]);
+                            }
+                            icheck = 1;
+                            break;
+                        }
+                    }
+                    check = 1;
+                    break;
+                }
+            }
+            if (!check)
+                printf("User not found\n");
+            else if (!icheck)
+                printf("Interlocutor not found\n");
+        } else if (strcmp(com, "help") == 0) {
+            printf("1) exit - shutdown with saving (write only when there is no autosave)\n");
+            printf("2) setsavetime - set time of autosave in minutes (by default 5 minutes)\n");
+            printf("3) printcont - print contact list\n");
+            printf("4) printmes - display message of someone with someone\n");
+        } else if (strcmp(com, "status") == 0) {
+            int online_num = 0;
+            for (int i = 0; i < user_num; ++i)
+                if (database[i].isonline)
+                    ++online_num;
+            printf("Save time: %dm. User online: %d\n", save_min, online_num);
         } else {
             printf("Unknown command\n");
         }
@@ -493,8 +533,8 @@ void *save_func(void *par) {
         if (time(NULL) - t >= 60 * save_min) {
             printf("Autosave start\n");
             base_save(&user_num, &database);
-            printf("Autosave end\n");
             t = time(NULL);
+            printf("Autosave end at %s\n", ctime(&t));
         }
     }
     return (void *) 0;
