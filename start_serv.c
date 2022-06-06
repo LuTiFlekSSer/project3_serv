@@ -514,6 +514,12 @@ void *console_func(void *par) {
             printf("2) setsavetime - set time of autosave in minutes (by default 5 minutes)\n");
             printf("3) printcont - print contact list\n");
             printf("4) printmes - display message of someone with someone\n");
+        } else if (strcmp(com, "status") == 0) {
+            int online_num = 0;
+            for (int i = 0; i < user_num; ++i)
+                if (database[i].isonline)
+                    ++online_num;
+            printf("Save time: %dm. User online: %d\n", save_min, online_num);
         } else {
             printf("Unknown command\n");
         }
