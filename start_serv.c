@@ -6,7 +6,7 @@
 #include "database.h"
 #include "time.h"
 
-int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5;
+int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5, offai_transfer = 1, ferr = 0;
 user_info *database;
 
 void *client_func(void *par) {
@@ -447,6 +447,144 @@ void *client_func(void *par) {
     return (void *) 0;
 }
 
+void *transfer_func(void *par) {
+    SOCKET client = (SOCKET) par;
+    char recieve[128 * 1024], transmit[128 * 1024];
+    int info = recv(client, recieve, 1024, 0);
+    if (!info || info == SOCKET_ERROR) {
+        closesocket(client);
+        return (void *) 0;
+    }
+    if (strcmp(recieve, "<send>") == 0) {
+        int info = recv(client, recieve, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        int base_id = -1, kent_id = -1;
+        for (int i = 0; i < user_num; ++i) {
+            if (strcmp(database[i].login, recieve) == 0) {
+                if (database[i].isonline)
+                    base_id = i;
+                break;
+            }
+        }
+        if (base_id == -1)
+            closesocket(client);
+        info = recv(client, recieve, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        for (int i = 0; i < user_num; ++i) {
+            if (strcmp(database[i].login, recieve) == 0) {
+                if (database[i].isonline)
+                    kent_id = i;
+                break;
+            }
+        }
+        char path[1000], name[1000];
+        info = recv(client, recieve, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        strcpy(name, recieve);
+        strcpy(path, "files/");
+        strcat(path, name);
+        info = recv(client, recieve, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        long long len, lenosnova, lenpobochka;
+        sscanf(recieve, "%lld", &len);
+        lenosnova = len / (128 * 1024);
+        lenpobochka = len % (128 * 1024);
+        FILE *file = fopen64(path, "w");
+        _fseeki64(file, 0, SEEK_END);
+        int size = 128 * 1024;
+        setvbuf(file, NULL, _IOFBF, size);
+        for (long long i = 0; i < lenosnova; ++i) {
+            info = recv(client, recieve, size, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                remove(path);
+                fclose(file);
+                return (void *) 0;
+            }
+            fwrite(recieve, sizeof(char), size, file);
+        }
+        if (lenpobochka) {
+            info = recv(client, recieve, size, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                remove(path);
+                fclose(file);
+                return (void *) 0;
+            }
+            fwrite(recieve, sizeof(char), lenpobochka, file);
+        }
+        strcpy(transmit, "<file> ");
+        strcat(transmit, database[base_id].login);
+        strcat(transmit, " ");
+        strcat(transmit, name);
+        info = send(database[kent_id].client, transmit, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            remove(path);
+            fclose(file);
+            return (void *) 0;
+        }
+        fclose(file);
+    } else {
+
+    }
+    return (void *) 0;
+}
+
+void *fserver_func(void *par) {
+    SOCKET server, client;
+    struct sockaddr_in localaddr, clientaddr;
+    server = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+    if (server == INVALID_SOCKET) {
+        printf("Error create file transfer server\n");
+        ferr = 1;
+        return (void *) 0;
+    }
+    localaddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+    localaddr.sin_family = AF_INET;
+    localaddr.sin_port = htons(port + 1);
+    if (bind(server, (struct sockaddr *) &localaddr, sizeof(localaddr)) == SOCKET_ERROR) {
+        printf("Can't create file transfer server\n");
+        ferr = 1;
+        return (void *) 0;
+    } else {
+        printf("File transfer server is started on port: %d\n", port + 1);
+    }
+    listen(server, SOMAXCONN);
+    int size;
+    while (1) {
+        if (offai_transfer) {
+            printf("File transfer server turned off\n");
+            break;
+        }
+        size = sizeof(clientaddr);
+        client = accept(server, (struct sockaddr *) &clientaddr, &size);
+        if (client == INVALID_SOCKET) {
+            printf("Error accept client for file transfer\n");
+            continue;
+        } else {
+            printf("Client is accepted for file transfer\n");
+            pthread_t transfer_thread;
+            pthread_create(&transfer_thread, NULL, &transfer_func, (void *) client);
+            pthread_detach(transfer_thread);
+        }
+    }
+    closesocket(server);
+    return (void *) 0;
+}
+
 void *console_func(void *par) {
     int check;
     SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
@@ -587,11 +725,13 @@ int createserv() {
     }
     listen(server, SOMAXCONN);
     //подрубить абобуса
-    pthread_t console_thread, save_thread;
+    pthread_t console_thread, save_thread, fserver_thread;
     pthread_create(&console_thread, NULL, &console_func, NULL);
     pthread_detach(console_thread);
     pthread_create(&save_thread, NULL, &save_func, NULL);
     pthread_detach(save_thread);
+    pthread_create(&fserver_thread, NULL, &fserver_func, NULL);
+    pthread_detach(fserver_thread);
     int size;
     while (1) {
         if (offai) {
