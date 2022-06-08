@@ -440,6 +440,52 @@ void *client_func(void *par) {
             for (int i = 0; i < user_num; ++i)
                 if (database[i].isonline)
                     send(database[i].client, transmit, 1024, 0);
+        } else if (strcmp(recieve, "<checkcont>") == 0) {
+            info = recv(client, recieve, 1024, 0);
+            if (!info || info == SOCKET_ERROR) {
+                database[base_id].isonline = 0;
+                closesocket(client);
+                return (void *) 0;
+            }
+            check = 0;
+            int cont_check = 0;
+            for (int i = 0; i < user_num; ++i) {
+                if (strcmp(recieve, database[i].login) == 0) {
+                    check = 1;
+                    for (int j = 0; j < database[i].cont_num; ++j) {
+                        if (strcmp(database[i].cont_list[j], database[base_id].login) == 0) {
+                            cont_check = 1;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            if (check && cont_check) {
+                strcpy(transmit, "yes");
+                info = send(client, transmit, 1024, 0);
+                if (!info || info == SOCKET_ERROR) {
+                    database[base_id].isonline = 0;
+                    closesocket(client);
+                    return (void *) 0;
+                }
+            } else if (check && !cont_check) {
+                strcpy(transmit, "no");
+                info = send(client, transmit, 1024, 0);
+                if (!info || info == SOCKET_ERROR) {
+                    database[base_id].isonline = 0;
+                    closesocket(client);
+                    return (void *) 0;
+                }
+            } else {
+                strcpy(transmit, "err");
+                info = send(client, transmit, 1024, 0);
+                if (!info || info == SOCKET_ERROR) {
+                    database[base_id].isonline = 0;
+                    closesocket(client);
+                    return (void *) 0;
+                }
+            }
         } else
             continue;
     }
