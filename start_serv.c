@@ -5,7 +5,7 @@
 #include "structs.h"
 #include "database.h"
 #include "time.h"
-
+#include "unistd.h"
 int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5, offai_transfer = 0, ferr = 0;
 user_info *database;
 
@@ -639,9 +639,10 @@ void *fserver_func(void *par) {
 
 void *console_func(void *par) {
     int check;
-
     char com[1000];
+    sleep(1);
     while (1) {
+        printf(">> ");
         scanf("%s", com);
         if (strcmp(com, "exit") == 0) {
             autosave = 0;
@@ -826,12 +827,12 @@ int createserv() {
     listen(server, SOMAXCONN);
     //подрубить абобуса
     pthread_t console_thread, save_thread, fserver_thread;
-    pthread_create(&console_thread, NULL, &console_func, NULL);
-    pthread_detach(console_thread);
     pthread_create(&save_thread, NULL, &save_func, NULL);
     pthread_detach(save_thread);
     pthread_create(&fserver_thread, NULL, &fserver_func, NULL);
     pthread_detach(fserver_thread);
+    pthread_create(&console_thread, NULL, &console_func, NULL);
+    pthread_detach(console_thread);
     int size;
     while (1) {
         if (offai) {
