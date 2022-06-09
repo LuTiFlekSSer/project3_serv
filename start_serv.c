@@ -6,6 +6,7 @@
 #include "database.h"
 #include "time.h"
 #include "unistd.h"
+
 int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5, offai_transfer = 0, ferr = 0;
 user_info *database;
 
@@ -744,9 +745,9 @@ void *console_func(void *par) {
         } else if (strcmp(com, "allusers") == 0) {
             for (int i = 0; i < user_num; ++i) {
                 if (database[i].isonline)
-                    printf("%s online\n",database[i].login);
+                    printf("%s online\n", database[i].login);
                 else
-                    printf("%s offline\n",database[i].login);
+                    printf("%s offline\n", database[i].login);
             }
         } else if (strcmp(com, "status") == 0) {
             int online_num = 0;
@@ -818,10 +819,13 @@ int createserv() {
     pthread_create(&console_thread, NULL, &console_func, NULL);
     pthread_detach(console_thread);
     int size;
+    sleep(2);
+    if (ferr) {
+        closesocket(server);
+        return -10;
+    }
     while (1) {
         if (offai) {
-            //отправить всем сообщение + сохранить данные
-            //адекватно офнуть сокеты
             for (int i = 0; i < user_num; ++i)
                 if (database[i].isonline)
                     closesocket(database[i].client);
