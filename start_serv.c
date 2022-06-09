@@ -665,11 +665,11 @@ void *console_func(void *par) {
             closesocket(client);
             break;
         } else if (strcmp(com, "setsavetime") == 0) {
-            printf("Enter new save time:\n");
+            printf("Enter new save time:\n>> ");
             scanf("%d", &save_min);
             printf("New save time: %dm.\n", save_min);
         } else if (strcmp(com, "printcont") == 0) {
-            printf("Enter username:\n");
+            printf("Enter username:\n>> ");
             scanf("%s", com);
             check = 0;
             for (int i = 0; i < user_num; ++i)
@@ -682,13 +682,13 @@ void *console_func(void *par) {
             if (!check)
                 printf("User not found\n");
         } else if (strcmp(com, "printmes") == 0) {
-            printf("Enter username:\n");
+            printf("Enter username:\n>> ");
             scanf("%s", com);
             check = 0;
             int icheck = 0;
             for (int i = 0; i < user_num; ++i) {
                 if (strcmp(database[i].login, com) == 0) {
-                    printf("Enter the name of the interlocutor\n");
+                    printf("Enter the name of the interlocutor:\n>> ");
                     scanf("%s", com);
                     for (int j = 0; j < database[i].mes_num; ++j) {
                         if (strcmp(com, database[i].mes_base[j].cont) == 0) {
@@ -709,7 +709,7 @@ void *console_func(void *par) {
             if (!check)
                 printf("User not found\n");
             else if (!icheck)
-                printf("Interlocutor not found\n");
+                printf("Interlocutor/chat not found\n");
         } else if (strcmp(com, "help") == 0) {
             printf("1) exit - shutdown with saving (write only when there is no autosave)\n");
             printf("2) setsavetime - set time of autosave in minutes (by default 5 minutes)\n");
@@ -792,22 +792,6 @@ int createserv() {
     int info = base_load(&user_num, &maxuser, &database);
     if (info)
         return info;
-    for (int i = 0; i < user_num; ++i) {
-        printf("login: %s pass: %s\n", database[i].login, database[i].pass);
-        printf("Online: %d\n", database[i].isonline);
-        for (int j = 0; j < database[i].cont_num; ++j)
-            printf("Cont: %s\n", database[i].cont_list[j]);
-        for (int j = 0; j < database[i].mes_num; ++j) {
-            printf("Mes with %s:\n", database[i].mes_base[j].cont);
-            for (int k = 0; k < database[i].mes_base[j].mes_num; ++k) {
-                if (database[i].mes_base[j].suda_or_tuda[k] == 0)
-                    printf("%s: %s\n", database[i].mes_base[j].cont, database[i].mes_base[j].mes[k]);
-                else
-                    printf("Me: %s\n", database[i].mes_base[j].mes[k]);
-            }
-            printf("\n");
-        }
-    }
     SOCKET server, client;
     struct sockaddr_in localaddr, clientaddr;
     server = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
