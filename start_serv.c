@@ -483,6 +483,8 @@ void *transfer_func(void *par) {
                 break;
             }
         }
+        if (kent_id == -1)
+            closesocket(client);
         char path[1000], name[1000];
         info = recv(client, recieve, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
@@ -549,14 +551,8 @@ void *transfer_func(void *par) {
         strcat(path, name);
         FILE *file = fopen64(path, "w");
         if (!file) {
-            strcpy(transmit, "error");
-            info = send(client, transmit, 1024, 0);
-            if (!info || info == SOCKET_ERROR) {
-                closesocket(client);
-                fclose(file);
-                remove(path);
-                return (void *) 0;
-            }
+            closesocket(client);
+            return (void *) 0;
         }
         _fseeki64(file, 0, SEEK_END);
         long long len = _ftelli64(file), lenosnova, lenpobochka;
