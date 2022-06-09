@@ -6,7 +6,7 @@
 #include "database.h"
 #include "time.h"
 
-int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5, offai_transfer = 1, ferr = 0;
+int offai = 0, user_num = 0, maxuser = 1, port, autosave = 1, save_min = 5, offai_transfer = 0, ferr = 0;
 user_info *database;
 
 void *client_func(void *par) {
@@ -639,17 +639,27 @@ void *fserver_func(void *par) {
 
 void *console_func(void *par) {
     int check;
-    SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
-    struct sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(port);
-    server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+
     char com[1000];
     while (1) {
         scanf("%s", com);
         if (strcmp(com, "exit") == 0) {
             autosave = 0;
             offai = 1;
+            SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+            struct sockaddr_in server;
+            server.sin_family = AF_INET;
+            server.sin_port = htons(port + 1);
+            server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+            if (!offai_transfer) {
+                offai_transfer = 1;
+                int info = connect(client, (struct sockaddr *) &server, sizeof(server));
+                closesocket(client);
+            }
+            client = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+            server.sin_family = AF_INET;
+            server.sin_port = htons(port);
+            server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
             int info = connect(client, (struct sockaddr *) &server, sizeof(server));
             closesocket(client);
             break;
@@ -704,12 +714,50 @@ void *console_func(void *par) {
             printf("2) setsavetime - set time of autosave in minutes (by default 5 minutes)\n");
             printf("3) printcont - print contact list\n");
             printf("4) printmes - display message of someone with someone\n");
+            printf("5) status - server status\n");
+            printf("6) transferon - enable file transfer server\n");
+            printf("7) transferoff - disable file transfer server\n");
+            printf("8) allusers - print all users\n");
+        } else if (strcmp(com, "transferon") == 0) {
+            if (!offai_transfer) {
+                printf("Already running\n");
+            } else {
+                offai_transfer = 0;
+                pthread_t fserver_thread;
+                pthread_create(&fserver_thread, NULL, &fserver_func, NULL);
+                pthread_detach(fserver_thread);
+            }
+        } else if (strcmp(com, "transferoff") == 0) {
+            if (offai_transfer) {
+                printf("Already turned off\n");
+            } else {
+                offai_transfer = 1;
+                SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+                struct sockaddr_in server;
+                server.sin_family = AF_INET;
+                server.sin_port = htons(port + 1);
+                server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+                int info = connect(client, (struct sockaddr *) &server, sizeof(server));
+                closesocket(client);
+            }
+        } else if (strcmp(com, "allusers") == 0) {
+            for (int i = 0; i < user_num; ++i) {
+                if (database[i].isonline)
+                    printf("%s online\n",database[i].login);
+                else
+                    printf("%s offline\n",database[i].login);
+            }
         } else if (strcmp(com, "status") == 0) {
             int online_num = 0;
             for (int i = 0; i < user_num; ++i)
                 if (database[i].isonline)
                     ++online_num;
             printf("Save time: %dm. User online: %d\n", save_min, online_num);
+            if (!offai_transfer) {
+                printf("File transfer server is running\n");
+            } else {
+                printf("File transfer server is turned off\n");
+            }
         } else {
             printf("Unknown command\n");
         }
