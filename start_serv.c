@@ -640,8 +640,8 @@ void *fserver_func(void *par) {
 void *console_func(void *par) {
     int check;
     char com[1000];
-    sleep(1);
     while (1) {
+        sleep(1);
         printf(">> ");
         scanf("%s", com);
         if (strcmp(com, "exit") == 0) {
