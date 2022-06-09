@@ -502,25 +502,24 @@ void *transfer_func(void *par) {
         lenosnova = len / (128 * 1024);
         lenpobochka = len % (128 * 1024);
         FILE *file = fopen64(path, "w");
-        _fseeki64(file, 0, SEEK_END);
         int size = 128 * 1024;
         setvbuf(file, NULL, _IOFBF, size);
         for (long long i = 0; i < lenosnova; ++i) {
             info = recv(client, recieve, size, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
-                remove(path);
                 fclose(file);
+                remove(path);
                 return (void *) 0;
             }
             fwrite(recieve, sizeof(char), size, file);
         }
         if (lenpobochka) {
-            info = recv(client, recieve, size, 0);
+            info = recv(client, recieve, (int) lenpobochka, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
-                remove(path);
                 fclose(file);
+                remove(path);
                 return (void *) 0;
             }
             fwrite(recieve, sizeof(char), lenpobochka, file);
@@ -532,14 +531,71 @@ void *transfer_func(void *par) {
         info = send(database[kent_id].client, transmit, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
-            remove(path);
             fclose(file);
+            remove(path);
             return (void *) 0;
         }
         fclose(file);
     } else {
-
+        info = recv(client, recieve, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        int size = 128 * 1024;
+        char path[1000], name[1000];
+        strcpy(name, recieve);
+        strcpy(path, "files/");
+        strcat(path, name);
+        FILE *file = fopen64(path, "w");
+        if (!file) {
+            strcpy(transmit, "error");
+            info = send(client, transmit, 1024, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                fclose(file);
+                remove(path);
+                return (void *) 0;
+            }
+        }
+        _fseeki64(file, 0, SEEK_END);
+        long long len = _ftelli64(file), lenosnova, lenpobochka;
+        _fseeki64(file, 0, SEEK_SET);
+        sprintf(transmit, "%lld", len);
+        info = send(client, transmit, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            fclose(file);
+            remove(path);
+            return (void *) 0;
+        }
+        lenosnova = len / (128 * 1024);
+        lenpobochka = len % (128 * 1024);
+        setvbuf(file, NULL, _IOFBF, size);
+        for (long long i = 0; i < lenosnova; ++i) {
+            fread(transmit, sizeof(char), size, file);
+            info = send(client, transmit, size, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                fclose(file);
+                remove(path);
+                return (void *) 0;
+            }
+        }
+        if (lenpobochka) {
+            fread(transmit, sizeof(char), lenpobochka, file);
+            info = send(client, transmit, (int) lenpobochka, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                fclose(file);
+                remove(path);
+                return (void *) 0;
+            }
+        }
+        fclose(file);
+        remove(path);
     }
+    closesocket(client);
     return (void *) 0;
 }
 
