@@ -242,7 +242,7 @@ void *client_func(void *par) {
                     for (int i = database[base_id].cont_num; i < database[base_id].cont_max_num; ++i)
                         database[base_id].cont_list[i] = (char *) calloc(100, sizeof(char));
                 }
-                strcpy(transmit, "ok");
+                strcpy(transmit, "1");
             } else
                 strcpy(transmit, "err");
             info = send(client, transmit, 1024, 0);
@@ -463,7 +463,7 @@ void *client_func(void *par) {
                 }
             }
             if (check && cont_check) {
-                strcpy(transmit, "yes");
+                strcpy(transmit, "1");
                 info = send(client, transmit, 1024, 0);
                 if (!info || info == SOCKET_ERROR) {
                     database[base_id].isonline = 0;
@@ -471,7 +471,7 @@ void *client_func(void *par) {
                     return (void *) 0;
                 }
             } else if (check && !cont_check) {
-                strcpy(transmit, "no");
+                strcpy(transmit, "0");
                 info = send(client, transmit, 1024, 0);
                 if (!info || info == SOCKET_ERROR) {
                     database[base_id].isonline = 0;
