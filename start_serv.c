@@ -294,7 +294,7 @@ void *client_func(void *par) {
                     break;
                 }
             if (check) {
-                strcpy(transmit, "ok");
+                strcpy(transmit, "1");
                 info = send(client, transmit, 1024, 0);
                 if (!info || info == SOCKET_ERROR) {
                     database[base_id].isonline = 0;
