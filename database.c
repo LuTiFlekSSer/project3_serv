@@ -3,12 +3,23 @@
 #include "structs.h"
 #include "stdio.h"
 #include "string.h"
+#include <dirent.h>
 
 int base_load(int *user_num, int *maxuser, user_info **database) {
+    DIR *data = opendir("database");
+    if (!data)
+        mkdir("database");
+    closedir(data);
+    data = opendir("files");
+    if (!data)
+        mkdir("files");
+    closedir(data);
     FILE *user_list = fopen("user_list.txt", "rw");
     if (!user_list) {
-        printf("No user_list\n");
-        return -3;
+        user_list = fopen("user_list.txt", "w");
+        fprintf(user_list, "\n");
+        fclose(user_list);
+        user_list = fopen("user_list.txt", "rw");
     }
     *database = (user_info *) calloc(1, sizeof(user_info));
     while (1) {
