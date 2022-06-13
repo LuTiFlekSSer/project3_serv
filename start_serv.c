@@ -540,6 +540,10 @@ void *transfer_func(void *par) {
         }
         strcpy(name, recieve);
         strcpy(path, "files/");
+        strcat(path, database[base_id].login);
+        strcat(path, "_");
+        strcat(path, database[kent_id].login);
+        strcat(path, "_");
         strcat(path, name);
         info = recv(client, recieve, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
@@ -596,7 +600,7 @@ void *transfer_func(void *par) {
         strcpy(name, recieve);
         strcpy(path, "files/");
         strcat(path, name);
-        FILE *file = fopen64(path, "w");
+        FILE *file = fopen64(path, "r");
         if (!file) {
             closesocket(client);
             return (void *) 0;
