@@ -503,7 +503,7 @@ void *transfer_func(void *par) {
         return (void *) 0;
     }
     if (strcmp(recieve, "<send>") == 0) {
-        int info = recv(client, recieve, 1024, 0);
+        info = recv(client, recieve, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
             return (void *) 0;
