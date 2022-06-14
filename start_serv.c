@@ -824,7 +824,7 @@ void *save_func(void *par) {
             printf("Autosave start\n");
             base_save(&user_num, &database);
             t = time(NULL);
-            printf("Autosave end at %s\n", ctime(&t));
+            printf(">> Autosave end at %s>> ", ctime(&t));
         }
     }
     return (void *) 0;
