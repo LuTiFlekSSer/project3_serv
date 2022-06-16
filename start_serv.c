@@ -84,9 +84,19 @@ void *client_func(void *par) {
             closesocket(client);
             return (void *) 0;
         }
+        info = recv(client, transmit, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         for (int i = 0; i < database[base_id].cont_num; ++i) {
             strcpy(transmit, database[base_id].cont_list[i]);
             info = send(client, transmit, 1024, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                return (void *) 0;
+            }
+            info = recv(client, transmit, 1024, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
                 return (void *) 0;
@@ -98,9 +108,18 @@ void *client_func(void *par) {
             closesocket(client);
             return (void *) 0;
         }
-
+        info = recv(client, transmit, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         strcpy(transmit, "<mes>");
         info = send(client, transmit, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        info = recv(client, transmit, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
             return (void *) 0;
@@ -112,8 +131,18 @@ void *client_func(void *par) {
                 closesocket(client);
                 return (void *) 0;
             }
+            info = recv(client, transmit, 1024, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                return (void *) 0;
+            }
             strcpy(transmit, database[base_id].mes_base[i].cont);
             info = send(client, transmit, 1024, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                return (void *) 0;
+            }
+            info = recv(client, transmit, 1024, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
                 return (void *) 0;
@@ -128,8 +157,18 @@ void *client_func(void *par) {
                     closesocket(client);
                     return (void *) 0;
                 }
+                info = recv(client, transmit, 1024, 0);
+                if (!info || info == SOCKET_ERROR) {
+                    closesocket(client);
+                    return (void *) 0;
+                }
                 strcpy(transmit, database[base_id].mes_base[i].mes[j]);
                 info = send(client, transmit, 1024, 0);
+                if (!info || info == SOCKET_ERROR) {
+                    closesocket(client);
+                    return (void *) 0;
+                }
+                info = recv(client, transmit, 1024, 0);
                 if (!info || info == SOCKET_ERROR) {
                     closesocket(client);
                     return (void *) 0;
@@ -141,9 +180,19 @@ void *client_func(void *par) {
                 closesocket(client);
                 return (void *) 0;
             }
+            info = recv(client, transmit, 1024, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                return (void *) 0;
+            }
         }
         strcpy(transmit, "<endmes>");
         info = send(client, transmit, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
+        info = recv(client, transmit, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
             return (void *) 0;
@@ -550,22 +599,29 @@ void *transfer_func(void *par) {
             closesocket(client);
             return (void *) 0;
         }
-        long long len, lenosnova, lenpobochka;
+        long long len, lenosnova, lenpobochka, size = 8000;
         sscanf(recieve, "%lld", &len);
-        lenosnova = len / (128 * 1024);
-        lenpobochka = len % (128 * 1024);
-        FILE *file = fopen64(path, "w");
-        int size = 128 * 1024;
+        lenosnova = len / size;
+        lenpobochka = len - lenosnova * size;
+        FILE *file = fopen64(path, "wb");
         setvbuf(file, NULL, _IOFBF, size);
+        printf("SIZE: %lld osn: %lld pob: %lld\n", len, lenosnova, lenpobochka);
         for (long long i = 0; i < lenosnova; ++i) {
-            info = recv(client, recieve, size, 0);
+            info = recv(client, recieve, (int) size, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
                 fclose(file);
                 remove(path);
                 return (void *) 0;
             }
-            fwrite(recieve, sizeof(char), size, file);
+            fwrite(recieve, sizeof(char), (int)size, file);
+            info = send(client, "imba", (int)size, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                fclose(file);
+                remove(path);
+                return (void *) 0;
+            }
         }
         if (lenpobochka) {
             info = recv(client, recieve, (int) lenpobochka, 0);
@@ -575,7 +631,7 @@ void *transfer_func(void *par) {
                 remove(path);
                 return (void *) 0;
             }
-            fwrite(recieve, sizeof(char), lenpobochka, file);
+            fwrite(recieve, sizeof(char), (int)lenpobochka, file);
         }
         strcpy(transmit, "<file> ");
         strcat(transmit, database[base_id].login);
@@ -595,18 +651,17 @@ void *transfer_func(void *par) {
             closesocket(client);
             return (void *) 0;
         }
-        int size = 128 * 1024;
         char path[1000], name[1000];
         strcpy(name, recieve);
         strcpy(path, "files/");
         strcat(path, name);
-        FILE *file = fopen64(path, "r");
+        FILE *file = fopen64(path, "rb");
         if (!file) {
             closesocket(client);
             return (void *) 0;
         }
         _fseeki64(file, 0, SEEK_END);
-        long long len = _ftelli64(file), lenosnova, lenpobochka;
+        long long len = _ftelli64(file), lenosnova, lenpobochka, size = 8000;
         _fseeki64(file, 0, SEEK_SET);
         sprintf(transmit, "%lld", len);
         info = send(client, transmit, 1024, 0);
@@ -616,12 +671,19 @@ void *transfer_func(void *par) {
             remove(path);
             return (void *) 0;
         }
-        lenosnova = len / (128 * 1024);
-        lenpobochka = len % (128 * 1024);
+        lenosnova = len / size;
+        lenpobochka = len - lenosnova * size;
         setvbuf(file, NULL, _IOFBF, size);
         for (long long i = 0; i < lenosnova; ++i) {
             fread(transmit, sizeof(char), size, file);
-            info = send(client, transmit, size, 0);
+            info = send(client, transmit, (int) size, 0);
+            if (!info || info == SOCKET_ERROR) {
+                closesocket(client);
+                fclose(file);
+                remove(path);
+                return (void *) 0;
+            }
+            info = recv(client, transmit, (int) size, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
                 fclose(file);
