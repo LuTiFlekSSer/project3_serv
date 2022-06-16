@@ -248,6 +248,7 @@ void *client_func(void *par) {
         database[base_id].mes_max_num = 1;
         database[base_id].mes_base = (mes_info *) calloc(1, sizeof(mes_info));
         database[base_id].mes_base[0].mes_max_num = 1;
+        database[base_id].mes_base[0].mes_num = 0;
         database[base_id].mes_base[0].mes = (char **) calloc(1, sizeof(char *));
         database[base_id].mes_base[0].mes[0] = (char *) calloc(1000, sizeof(char));
         database[base_id].mes_base[0].suda_or_tuda = (char *) calloc(1, sizeof(char));
@@ -365,17 +366,20 @@ void *client_func(void *par) {
                         break;
                     }
                 if (check) {
-                    strcpy(database[base_id].mes_base[chel_in_mes].mes[database[base_id].mes_base[chel_in_mes].mes_num], recieve);
+                    strcpy(database[base_id].mes_base[chel_in_mes].mes[database[base_id].mes_base[chel_in_mes].mes_num],
+                           recieve);
                     database[base_id].mes_base[chel_in_mes].suda_or_tuda[database[base_id].mes_base[chel_in_mes].mes_num] = 1;
                     ++database[base_id].mes_base[chel_in_mes].mes_num;
-                    if (database[base_id].mes_base[chel_in_mes].mes_num == database[base_id].mes_base[chel_in_mes].mes_max_num) {
+                    if (database[base_id].mes_base[chel_in_mes].mes_num ==
+                        database[base_id].mes_base[chel_in_mes].mes_max_num) {
                         database[base_id].mes_base[chel_in_mes].mes_max_num *= 2;
                         database[base_id].mes_base[chel_in_mes].suda_or_tuda = (char *) realloc(
                                 database[base_id].mes_base[chel_in_mes].suda_or_tuda,
                                 database[base_id].mes_base[chel_in_mes].mes_max_num * sizeof(char));
-                        database[base_id].mes_base[chel_in_mes].mes = (char **) realloc(database[base_id].mes_base[chel_in_mes].mes,
-                                                                                        database[base_id].mes_base[chel_in_mes].mes_max_num *
-                                                                                        sizeof(char *));
+                        database[base_id].mes_base[chel_in_mes].mes = (char **) realloc(
+                                database[base_id].mes_base[chel_in_mes].mes,
+                                database[base_id].mes_base[chel_in_mes].mes_max_num *
+                                sizeof(char *));
                         for (int i = database[base_id].mes_base[chel_in_mes].mes_num;
                              i < database[base_id].mes_base[chel_in_mes].mes_max_num; ++i)
                             database[base_id].mes_base[chel_in_mes].mes[i] = (char *) calloc(1000, sizeof(char));
@@ -385,17 +389,20 @@ void *client_func(void *par) {
                             chel_in_mes = i;
                             break;
                         }
-                    strcpy(database[chel_id].mes_base[chel_in_mes].mes[database[chel_id].mes_base[chel_in_mes].mes_num], recieve);
+                    strcpy(database[chel_id].mes_base[chel_in_mes].mes[database[chel_id].mes_base[chel_in_mes].mes_num],
+                           recieve);
                     database[chel_id].mes_base[chel_in_mes].suda_or_tuda[database[chel_id].mes_base[chel_in_mes].mes_num] = 0;
                     ++database[chel_id].mes_base[chel_in_mes].mes_num;
-                    if (database[chel_id].mes_base[chel_in_mes].mes_num == database[chel_id].mes_base[chel_in_mes].mes_max_num) {
+                    if (database[chel_id].mes_base[chel_in_mes].mes_num ==
+                        database[chel_id].mes_base[chel_in_mes].mes_max_num) {
                         database[chel_id].mes_base[chel_in_mes].mes_max_num *= 2;
                         database[chel_id].mes_base[chel_in_mes].suda_or_tuda = (char *) realloc(
                                 database[chel_id].mes_base[chel_in_mes].suda_or_tuda,
                                 database[chel_id].mes_base[chel_in_mes].mes_max_num * sizeof(char));
-                        database[chel_id].mes_base[chel_in_mes].mes = (char **) realloc(database[chel_id].mes_base[chel_in_mes].mes,
-                                                                                        database[chel_id].mes_base[chel_in_mes].mes_max_num *
-                                                                                        sizeof(char *));
+                        database[chel_id].mes_base[chel_in_mes].mes = (char **) realloc(
+                                database[chel_id].mes_base[chel_in_mes].mes,
+                                database[chel_id].mes_base[chel_in_mes].mes_max_num *
+                                sizeof(char *));
                         for (int i = database[chel_id].mes_base[chel_in_mes].mes_num;
                              i < database[chel_id].mes_base[chel_in_mes].mes_max_num; ++i)
                             database[chel_id].mes_base[chel_in_mes].mes[i] = (char *) calloc(1000, sizeof(char));
@@ -404,7 +411,8 @@ void *client_func(void *par) {
                     strcpy(database[base_id].mes_base[database[base_id].mes_num].cont, database[chel_id].login);
                     database[base_id].mes_base[database[base_id].mes_num].mes_num = 1;
                     database[base_id].mes_base[database[base_id].mes_num].mes_max_num = 2;
-                    database[base_id].mes_base[database[base_id].mes_num].suda_or_tuda = (char *) calloc(2, sizeof(char));
+                    database[base_id].mes_base[database[base_id].mes_num].suda_or_tuda = (char *) calloc(2,
+                                                                                                         sizeof(char));
                     database[base_id].mes_base[database[base_id].mes_num].mes = (char **) calloc(2, sizeof(char *));
                     database[base_id].mes_base[database[base_id].mes_num].mes[0] = (char *) calloc(1000, sizeof(char));
                     database[base_id].mes_base[database[base_id].mes_num].mes[1] = (char *) calloc(1000, sizeof(char));
@@ -414,12 +422,14 @@ void *client_func(void *par) {
                     if (database[base_id].mes_num == database[base_id].mes_max_num) {
                         database[base_id].mes_max_num *= 2;
                         database[base_id].mes_base = (mes_info *) realloc(database[base_id].mes_base,
-                                                                          database[base_id].mes_max_num * sizeof(mes_info));
+                                                                          database[base_id].mes_max_num *
+                                                                          sizeof(mes_info));
                     }
-                    strcpy(database[chel_id].mes_base[database[chel_id].mes_num].cont, database[chel_id].login);
+                    strcpy(database[chel_id].mes_base[database[chel_id].mes_num].cont, database[base_id].login);
                     database[chel_id].mes_base[database[chel_id].mes_num].mes_num = 1;
                     database[chel_id].mes_base[database[chel_id].mes_num].mes_max_num = 2;
-                    database[chel_id].mes_base[database[chel_id].mes_num].suda_or_tuda = (char *) calloc(2, sizeof(char));
+                    database[chel_id].mes_base[database[chel_id].mes_num].suda_or_tuda = (char *) calloc(2,
+                                                                                                         sizeof(char));
                     database[chel_id].mes_base[database[chel_id].mes_num].mes = (char **) calloc(2, sizeof(char *));
                     database[chel_id].mes_base[database[chel_id].mes_num].mes[0] = (char *) calloc(1000, sizeof(char));
                     database[chel_id].mes_base[database[chel_id].mes_num].mes[1] = (char *) calloc(1000, sizeof(char));
@@ -429,7 +439,8 @@ void *client_func(void *par) {
                     if (database[chel_id].mes_num == database[chel_id].mes_max_num) {
                         database[chel_id].mes_max_num *= 2;
                         database[chel_id].mes_base = (mes_info *) realloc(database[chel_id].mes_base,
-                                                                          database[chel_id].mes_max_num * sizeof(mes_info));
+                                                                          database[chel_id].mes_max_num *
+                                                                          sizeof(mes_info));
                     }
                 }
                 if (database[chel_id].isonline) {
@@ -464,6 +475,12 @@ void *client_func(void *par) {
             for (int i = 0; i < user_num; ++i) {
                 strcpy(transmit, database[i].login);
                 info = send(client, transmit, 1024, 0);
+                if (!info || info == SOCKET_ERROR) {
+                    database[base_id].isonline = 0;
+                    closesocket(client);
+                    return (void *) 0;
+                }
+                info = recv(client, transmit, 1024, 0);
                 if (!info || info == SOCKET_ERROR) {
                     database[base_id].isonline = 0;
                     closesocket(client);
@@ -551,6 +568,11 @@ void *transfer_func(void *par) {
         return (void *) 0;
     }
     if (strcmp(recieve, "<send>") == 0) {
+        info = send(client, "imba", 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         info = recv(client, recieve, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
@@ -563,6 +585,11 @@ void *transfer_func(void *par) {
                     base_id = i;
                 break;
             }
+        }
+        info = send(client, "imba", 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
         }
         if (base_id == -1)
             closesocket(client);
@@ -577,6 +604,11 @@ void *transfer_func(void *par) {
                     kent_id = i;
                 break;
             }
+        }
+        info = send(client, "imba", 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
         }
         if (kent_id == -1)
             closesocket(client);
@@ -593,6 +625,11 @@ void *transfer_func(void *par) {
         strcat(path, database[kent_id].login);
         strcat(path, "_");
         strcat(path, name);
+        info = send(client, "imba", 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         info = recv(client, recieve, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
@@ -604,7 +641,11 @@ void *transfer_func(void *par) {
         lenpobochka = len - lenosnova * size;
         FILE *file = fopen64(path, "wb");
         setvbuf(file, NULL, _IOFBF, size);
-        printf("SIZE: %lld osn: %lld pob: %lld\n", len, lenosnova, lenpobochka);
+        info = send(client, "imba", 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         for (long long i = 0; i < lenosnova; ++i) {
             info = recv(client, recieve, (int) size, 0);
             if (!info || info == SOCKET_ERROR) {
@@ -613,8 +654,8 @@ void *transfer_func(void *par) {
                 remove(path);
                 return (void *) 0;
             }
-            fwrite(recieve, sizeof(char), (int)size, file);
-            info = send(client, "imba", (int)size, 0);
+            fwrite(recieve, sizeof(char), (int) size, file);
+            info = send(client, "imba", (int) size, 0);
             if (!info || info == SOCKET_ERROR) {
                 closesocket(client);
                 fclose(file);
@@ -630,7 +671,7 @@ void *transfer_func(void *par) {
                 remove(path);
                 return (void *) 0;
             }
-            fwrite(recieve, sizeof(char), (int)lenpobochka, file);
+            fwrite(recieve, sizeof(char), (int) lenpobochka, file);
         }
         strcpy(transmit, "<file> ");
         strcat(transmit, database[base_id].login);
@@ -645,6 +686,11 @@ void *transfer_func(void *par) {
         }
         fclose(file);
     } else {
+        info = send(client, "imba", 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         info = recv(client, recieve, 1024, 0);
         if (!info || info == SOCKET_ERROR) {
             closesocket(client);
@@ -673,6 +719,12 @@ void *transfer_func(void *par) {
         lenosnova = len / size;
         lenpobochka = len - lenosnova * size;
         setvbuf(file, NULL, _IOFBF, size);
+
+        info = recv(client, recieve, 1024, 0);
+        if (!info || info == SOCKET_ERROR) {
+            closesocket(client);
+            return (void *) 0;
+        }
         for (long long i = 0; i < lenosnova; ++i) {
             fread(transmit, sizeof(char), size, file);
             info = send(client, transmit, (int) size, 0);
