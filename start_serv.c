@@ -416,7 +416,6 @@ void *client_func(void *par) {
                         database[base_id].mes_base = (mes_info *) realloc(database[base_id].mes_base,
                                                                           database[base_id].mes_max_num * sizeof(mes_info));
                     }
-
                     strcpy(database[chel_id].mes_base[database[chel_id].mes_num].cont, database[chel_id].login);
                     database[chel_id].mes_base[database[chel_id].mes_num].mes_num = 1;
                     database[chel_id].mes_base[database[chel_id].mes_num].mes_max_num = 2;
@@ -424,7 +423,7 @@ void *client_func(void *par) {
                     database[chel_id].mes_base[database[chel_id].mes_num].mes = (char **) calloc(2, sizeof(char *));
                     database[chel_id].mes_base[database[chel_id].mes_num].mes[0] = (char *) calloc(1000, sizeof(char));
                     database[chel_id].mes_base[database[chel_id].mes_num].mes[1] = (char *) calloc(1000, sizeof(char));
-                    database[chel_id].mes_base[database[chel_id].mes_num].suda_or_tuda[0] = 1;
+                    database[chel_id].mes_base[database[chel_id].mes_num].suda_or_tuda[0] = 0;
                     strcpy(database[chel_id].mes_base[database[chel_id].mes_num].mes[0], recieve);
                     ++database[chel_id].mes_num;
                     if (database[chel_id].mes_num == database[chel_id].mes_max_num) {
