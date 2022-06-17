@@ -788,10 +788,8 @@ void *fserver_func(void *par) {
         size = sizeof(clientaddr);
         client = accept(server, (struct sockaddr *) &clientaddr, &size);
         if (client == INVALID_SOCKET) {
-            printf("Error accept client for file transfer\n");
             continue;
         } else {
-            printf("Client is accepted for file transfer\n");
             pthread_t transfer_thread;
             pthread_create(&transfer_thread, NULL, &transfer_func, (void *) client);
             pthread_detach(transfer_thread);
@@ -999,10 +997,8 @@ int createserv() {
         size = sizeof(clientaddr);
         client = accept(server, (struct sockaddr *) &clientaddr, &size);
         if (client == INVALID_SOCKET) {
-            printf("Error accept client 1\n");
             continue;
         } else {
-            printf("Client is accepted\n");
             pthread_t client_thread;
             pthread_create(&client_thread, NULL, &client_func, (void *) client);
             pthread_detach(client_thread);
